@@ -1490,7 +1490,6 @@ Punching Shear Check & $v_{Ed} \leq v_{Rd,c}$ & """ + (f"{_dkv(KEY_DD_PUNCH_VED)
 \noindent\textit{Note: $\beta = 1.0$ (IRC 112:2020 Cl.~10.4.3(1) --- axial wheel load without bending moment on the loaded area). Punching shear reinforcement not typically required for deck slabs with $d \geq 200$ mm and adequate longitudinal reinforcement.}
 
 \vspace{1em}
-\clearpage
 """ + render_report_table(
     "Crack Width Check (Deck Slab)", [],
     headers=["parameter", "value / reference"],
