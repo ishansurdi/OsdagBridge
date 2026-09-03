@@ -8,12 +8,73 @@ from typing import Any
 
 from osdagbridge.core.bridge_components.super_structure.crash_barrier.properties import RCC_DENSITY
 from osdagbridge.core.utils.common import (
+    KEY_BOQ_BRACING_BOTTOM_QTY,
+    KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA,
+    KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL,
+    KEY_BOQ_BRACING_BOTTOM_WT_SINGLE,
+    KEY_BOQ_BRACING_BOTTOM_WT_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_QTY,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE,
+    KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL,
+    KEY_BOQ_BRACING_TOP_QTY,
+    KEY_BOQ_BRACING_TOP_VOL_FORMULA,
+    KEY_BOQ_BRACING_TOP_VOL_TOTAL,
+    KEY_BOQ_BRACING_TOP_WT_SINGLE,
+    KEY_BOQ_BRACING_TOP_WT_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_QTY,
+    KEY_BOQ_CONCRETE_DECK_VOL_FORMULA,
+    KEY_BOQ_CONCRETE_DECK_VOL_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_WT_SINGLE,
+    KEY_BOQ_CONCRETE_DECK_WT_TOTAL,
+    KEY_BOQ_CONNECTIONS_QTY,
+    KEY_BOQ_CONNECTIONS_VOL_FORMULA,
+    KEY_BOQ_CONNECTIONS_VOL_TOTAL,
+    KEY_BOQ_CONNECTIONS_WT_SINGLE,
+    KEY_BOQ_CONNECTIONS_WT_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_QTY,
+    KEY_BOQ_CRASH_BARRIER_VOL_FORMULA,
+    KEY_BOQ_CRASH_BARRIER_VOL_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_WT_SINGLE,
+    KEY_BOQ_CRASH_BARRIER_WT_TOTAL,
+    KEY_BOQ_REBAR_DECK_QTY,
+    KEY_BOQ_REBAR_DECK_VOL_FORMULA,
+    KEY_BOQ_REBAR_DECK_VOL_TOTAL,
+    KEY_BOQ_REBAR_DECK_WT_SINGLE,
+    KEY_BOQ_REBAR_DECK_WT_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_QTY,
+    KEY_BOQ_SHEAR_STUDS_VOL_FORMULA,
+    KEY_BOQ_SHEAR_STUDS_VOL_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_WT_SINGLE,
+    KEY_BOQ_SHEAR_STUDS_WT_TOTAL,
+    KEY_BOQ_STEEL_GIRDERS_QTY,
+    KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA,
+    KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL,
+    KEY_BOQ_STEEL_GIRDERS_WT_SINGLE,
+    KEY_BOQ_STEEL_GIRDERS_WT_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_QTY,
+    KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_WT_SINGLE,
+    KEY_BOQ_STIFFENER_BEARING_WT_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_QTY,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL,
     KEY_CB_AREA,
     KEY_CB_DENSITY,
     KEY_CB_LOAD,
     KEY_MP_GIRDER_BOTTOM_FLANGE_THICKNESS,
+    KEY_MP_GIRDER_BOTTOM_FLANGE_WIDTH,
     KEY_MP_GIRDER_DEPTH,
+    KEY_MP_GIRDER_MASS,
+    KEY_MP_GIRDER_SECTIONAL_AREA,
     KEY_MP_GIRDER_TOP_FLANGE_THICKNESS,
+    KEY_MP_GIRDER_TOP_FLANGE_WIDTH,
+    KEY_MP_GIRDER_WEB_DEPTH,
+    KEY_MP_GIRDER_WEB_THICKNESS,
     KEY_MP_STIFFENER_BEARING_OUTSTAND,
     KEY_MP_STIFFENER_BEARING_THICKNESS,
     KEY_MP_STIFFENER_INTERMEDIATE,
@@ -27,6 +88,13 @@ from osdagbridge.core.utils.common import (
     KEY_TD_CB_TOP_CHORD_PROP_A,
     KEY_TS_NO_OF_GIRDERS,
     KEY_TS_DECK_THICKNESS,
+    KEY_TS_OVERALL_WIDTH,
+    KEY_SD_SHEAR_DIAMETER,
+    KEY_SD_SHEAR_HEIGHT,
+    KEY_SD_SHEAR_LONGITUDINAL_SPACING,
+    KEY_SD_SHEAR_STUDS_PER_SECTION,
+    KEY_DS_STUD_DIAMETER,
+    KEY_DS_STUD_HEIGHT,
 )
 
 logger = logging.getLogger("osdagbridge.core.boq_generator")
@@ -52,6 +120,102 @@ STEEL_DENSITY_T_PER_M3 = 7.85
 # Connection material (splices, gussets, bolts, cleats) is taken as a
 # percentage of the girder steel it joins, per standard take-off practice.
 CONNECTION_ALLOWANCE = 0.10
+
+BOQ_FIELD_KEYS = (
+    KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA,
+    KEY_BOQ_STEEL_GIRDERS_QTY,
+    KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL,
+    KEY_BOQ_STEEL_GIRDERS_WT_SINGLE,
+    KEY_BOQ_STEEL_GIRDERS_WT_TOTAL,
+    KEY_BOQ_BRACING_TOP_VOL_FORMULA,
+    KEY_BOQ_BRACING_TOP_QTY,
+    KEY_BOQ_BRACING_TOP_VOL_TOTAL,
+    KEY_BOQ_BRACING_TOP_WT_SINGLE,
+    KEY_BOQ_BRACING_TOP_WT_TOTAL,
+    KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA,
+    KEY_BOQ_BRACING_BOTTOM_QTY,
+    KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL,
+    KEY_BOQ_BRACING_BOTTOM_WT_SINGLE,
+    KEY_BOQ_BRACING_BOTTOM_WT_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA,
+    KEY_BOQ_BRACING_DIAGONAL_QTY,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE,
+    KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_BEARING_QTY,
+    KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_WT_SINGLE,
+    KEY_BOQ_STIFFENER_BEARING_WT_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_QTY,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL,
+    KEY_BOQ_CONNECTIONS_VOL_FORMULA,
+    KEY_BOQ_CONNECTIONS_QTY,
+    KEY_BOQ_CONNECTIONS_VOL_TOTAL,
+    KEY_BOQ_CONNECTIONS_WT_SINGLE,
+    KEY_BOQ_CONNECTIONS_WT_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_VOL_FORMULA,
+    KEY_BOQ_CONCRETE_DECK_QTY,
+    KEY_BOQ_CONCRETE_DECK_VOL_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_WT_SINGLE,
+    KEY_BOQ_CONCRETE_DECK_WT_TOTAL,
+    KEY_BOQ_REBAR_DECK_VOL_FORMULA,
+    KEY_BOQ_REBAR_DECK_QTY,
+    KEY_BOQ_REBAR_DECK_VOL_TOTAL,
+    KEY_BOQ_REBAR_DECK_WT_SINGLE,
+    KEY_BOQ_REBAR_DECK_WT_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_VOL_FORMULA,
+    KEY_BOQ_SHEAR_STUDS_QTY,
+    KEY_BOQ_SHEAR_STUDS_VOL_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_WT_SINGLE,
+    KEY_BOQ_SHEAR_STUDS_WT_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_VOL_FORMULA,
+    KEY_BOQ_CRASH_BARRIER_QTY,
+    KEY_BOQ_CRASH_BARRIER_VOL_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_WT_SINGLE,
+    KEY_BOQ_CRASH_BARRIER_WT_TOTAL,
+)
+
+BOQ_PREFIX_KEYS = {
+    "bracing_top": (
+        KEY_BOQ_BRACING_TOP_VOL_FORMULA,
+        KEY_BOQ_BRACING_TOP_QTY,
+        KEY_BOQ_BRACING_TOP_VOL_TOTAL,
+        KEY_BOQ_BRACING_TOP_WT_SINGLE,
+        KEY_BOQ_BRACING_TOP_WT_TOTAL,
+    ),
+    "bracing_bot": (
+        KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA,
+        KEY_BOQ_BRACING_BOTTOM_QTY,
+        KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL,
+        KEY_BOQ_BRACING_BOTTOM_WT_SINGLE,
+        KEY_BOQ_BRACING_BOTTOM_WT_TOTAL,
+    ),
+    "bracing_diag": (
+        KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA,
+        KEY_BOQ_BRACING_DIAGONAL_QTY,
+        KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL,
+        KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE,
+        KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL,
+    ),
+    "stiffener_bearing": (
+        KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA,
+        KEY_BOQ_STIFFENER_BEARING_QTY,
+        KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL,
+        KEY_BOQ_STIFFENER_BEARING_WT_SINGLE,
+        KEY_BOQ_STIFFENER_BEARING_WT_TOTAL,
+    ),
+    "stiffener_int": (
+        KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA,
+        KEY_BOQ_STIFFENER_INTERMEDIATE_QTY,
+        KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL,
+        KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE,
+        KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL,
+    ),
+}
 
 
 def _num(value):
@@ -124,15 +288,16 @@ def _plate_quantities(prefix: str, length_mm: float, thickness_mm: float,
     thickness_m = thickness_mm / 1000.0
     width_m = width_mm / 1000.0
     single_vol = length_m * thickness_m * width_m
+    vol_key, qty_key, vol_total_key, wt_single_key, wt_total_key = BOQ_PREFIX_KEYS[prefix]
     return {
-        f"{prefix}_vol_formula": (
+        vol_key: (
             f"${_fmt_math(length_m)}\\text{{ m}} \\times {_fmt_math(thickness_m)}\\text{{ m}}"
             f" \\times {_fmt_math(width_m)}\\text{{ m}} = {_fmt_math(single_vol)}\\text{{ m}}^3$"
         ),
-        f"{prefix}_qty": str(qty),
-        f"{prefix}_vol_total": _fmt_small(total_vol),
-        f"{prefix}_wt_single": _fmt_small(single_vol * STEEL_DENSITY_T_PER_M3),
-        f"{prefix}_wt_total": _fmt_small(total_vol * STEEL_DENSITY_T_PER_M3),
+        qty_key: str(qty),
+        vol_total_key: _fmt_small(total_vol),
+        wt_single_key: _fmt_small(single_vol * STEEL_DENSITY_T_PER_M3),
+        wt_total_key: _fmt_small(total_vol * STEEL_DENSITY_T_PER_M3),
     }
 
 
@@ -153,7 +318,7 @@ def calculate_stiffener_quantities(inputs: dict, span: float, n_girders: int) ->
     int_dims = None
 
     for gi in range(n_girders):
-        web_depth = _girder_num(inputs, "member_properties.girder_details.section_input.web_depth", gi)
+        web_depth = _girder_num(inputs, KEY_MP_GIRDER_WEB_DEPTH, gi)
         if web_depth is None:
             depth = _girder_num(inputs, KEY_MP_GIRDER_DEPTH, gi)
             if depth is None:
@@ -206,14 +371,14 @@ def calculate_connection_quantities(girder_vol: float, girder_wt: float) -> dict
     conn_wt = girder_wt * CONNECTION_ALLOWANCE
     pct = f"{CONNECTION_ALLOWANCE * 100:g}"
     return {
-        "connections_vol_formula": (
+        KEY_BOQ_CONNECTIONS_VOL_FORMULA: (
             f"${pct}\\% \\times {_fmt_math(girder_vol)}\\text{{ m}}^3"
             f" = {_fmt_math(conn_vol)}\\text{{ m}}^3$"
         ),
-        "connections_qty": "1",
-        "connections_vol_total": _fmt_small(conn_vol),
-        "connections_wt_single": _fmt_small(conn_wt),
-        "connections_wt_total": _fmt_small(conn_wt),
+        KEY_BOQ_CONNECTIONS_QTY: "1",
+        KEY_BOQ_CONNECTIONS_VOL_TOTAL: _fmt_small(conn_vol),
+        KEY_BOQ_CONNECTIONS_WT_SINGLE: _fmt_small(conn_wt),
+        KEY_BOQ_CONNECTIONS_WT_TOTAL: _fmt_small(conn_wt),
     }
 
 
@@ -225,15 +390,16 @@ def _bracing_member_quantities(prefix: str, area: float, length: float,
     length); the panel count belongs in the quantity column.
     """
     single_vol = area * length
+    vol_key, qty_key, vol_total_key, wt_single_key, wt_total_key = BOQ_PREFIX_KEYS[prefix]
     return {
-        f"{prefix}_vol_formula": (
+        vol_key: (
             f"${_fmt_math(area)}\\text{{ m}}^2 \\times {_fmt_math(length)}"
             f"\\text{{ m}} = {_fmt_math(single_vol)}\\text{{ m}}^3$"
         ),
-        f"{prefix}_qty": str(qty),
-        f"{prefix}_vol_total": _fmt_small(total_vol),
-        f"{prefix}_wt_single": _fmt_small(single_vol * STEEL_DENSITY_T_PER_M3),
-        f"{prefix}_wt_total": _fmt_small(total_vol * STEEL_DENSITY_T_PER_M3),
+        qty_key: str(qty),
+        vol_total_key: _fmt_small(total_vol),
+        wt_single_key: _fmt_small(single_vol * STEEL_DENSITY_T_PER_M3),
+        wt_total_key: _fmt_small(total_vol * STEEL_DENSITY_T_PER_M3),
     }
 
 
@@ -290,79 +456,7 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
     """Calculate quantities (steel tonnage, concrete volume, rebar, studs)
     needed for the material take-off summary (Chapter 7).
     """
-    quantities = {
-        "steel_girders_vol_formula": "N.A.",
-        "steel_girders_qty": "N.A.",
-        "steel_girders_vol_total": "N.A.",
-        "steel_girders_wt_single": "N.A.",
-        "steel_girders_wt_total": "N.A.",
-        
-        "steel_bracing_vol_formula": "N.A.",
-        "steel_bracing_qty": "N.A.",
-        "steel_bracing_vol_total": "N.A.",
-        "steel_bracing_wt_single": "N.A.",
-        "steel_bracing_wt_total": "N.A.",
-
-        "bracing_top_vol_formula": "N.A.",
-        "bracing_top_qty": "N.A.",
-        "bracing_top_vol_total": "N.A.",
-        "bracing_top_wt_single": "N.A.",
-        "bracing_top_wt_total": "N.A.",
-
-        "bracing_bot_vol_formula": "N.A.",
-        "bracing_bot_qty": "N.A.",
-        "bracing_bot_vol_total": "N.A.",
-        "bracing_bot_wt_single": "N.A.",
-        "bracing_bot_wt_total": "N.A.",
-
-        "bracing_diag_vol_formula": "N.A.",
-        "bracing_diag_qty": "N.A.",
-        "bracing_diag_vol_total": "N.A.",
-        "bracing_diag_wt_single": "N.A.",
-        "bracing_diag_wt_total": "N.A.",
-        
-        "concrete_deck_vol_formula": "N.A.",
-        "concrete_deck_qty": "N.A.",
-        "concrete_deck_vol_total": "N.A.",
-        "concrete_deck_wt_single": "N.A.",
-        "concrete_deck_wt_total": "N.A.",
-        
-        "rebar_deck_vol_formula": "N.A.",
-        "rebar_deck_qty": "N.A.",
-        "rebar_deck_vol_total": "N.A.",
-        "rebar_deck_wt_single": "N.A.",
-        "rebar_deck_wt_total": "N.A.",
-        
-        "stiffener_bearing_vol_formula": "N.A.",
-        "stiffener_bearing_qty": "N.A.",
-        "stiffener_bearing_vol_total": "N.A.",
-        "stiffener_bearing_wt_single": "N.A.",
-        "stiffener_bearing_wt_total": "N.A.",
-
-        "stiffener_int_vol_formula": "N.A.",
-        "stiffener_int_qty": "N.A.",
-        "stiffener_int_vol_total": "N.A.",
-        "stiffener_int_wt_single": "N.A.",
-        "stiffener_int_wt_total": "N.A.",
-
-        "connections_vol_formula": "N.A.",
-        "connections_qty": "N.A.",
-        "connections_vol_total": "N.A.",
-        "connections_wt_single": "N.A.",
-        "connections_wt_total": "N.A.",
-
-        "shear_studs_vol_formula": "N.A.",
-        "shear_studs_qty": "N.A.",
-        "shear_studs_vol_total": "N.A.",
-        "shear_studs_wt_single": "N.A.",
-        "shear_studs_wt_total": "N.A.",
-
-        "crash_barrier_vol_formula": "N.A.",
-        "crash_barrier_qty": "N.A.",
-        "crash_barrier_vol_total": "N.A.",
-        "crash_barrier_wt_single": "N.A.",
-        "crash_barrier_wt_total": "N.A.",
-    }
+    quantities = {key: "N.A." for key in BOQ_FIELD_KEYS}
     try:
         span_val = inputs.get(KEY_SPAN)
         n_girders_val = inputs.get(KEY_TS_NO_OF_GIRDERS)
@@ -379,7 +473,7 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
             return quantities
 
         # 1. Concrete deck volume (Cu.m) and Weight (t)
-        overall_width_val = inputs.get("typical_section.overall_bridge_width")
+        overall_width_val = inputs.get(KEY_TS_OVERALL_WIDTH)
         deck_thickness_val = inputs.get(KEY_TS_DECK_THICKNESS)
         
         if overall_width_val is not None and deck_thickness_val is not None:
@@ -388,23 +482,23 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
                 deck_thickness = float(deck_thickness_val) / 1000.0  # mm to m
                 if overall_width > 0 and deck_thickness > 0:
                     concrete_vol = span * overall_width * deck_thickness
-                    quantities["concrete_deck_vol_formula"] = f"${_fmt_math(overall_width)}\\text{{ m}} \\times {_fmt_math(deck_thickness)}\\text{{ m}} \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(concrete_vol)}\\text{{ m}}^3$"
-                    quantities["concrete_deck_qty"] = "1"
-                    quantities["concrete_deck_vol_total"] = _fmt_small(concrete_vol)
-                    quantities["concrete_deck_wt_single"] = _fmt_small((concrete_vol * 2.5))
-                    quantities["concrete_deck_wt_total"] = _fmt_small((concrete_vol * 2.5))
+                    quantities[KEY_BOQ_CONCRETE_DECK_VOL_FORMULA] = f"${_fmt_math(overall_width)}\\text{{ m}} \\times {_fmt_math(deck_thickness)}\\text{{ m}} \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(concrete_vol)}\\text{{ m}}^3$"
+                    quantities[KEY_BOQ_CONCRETE_DECK_QTY] = "1"
+                    quantities[KEY_BOQ_CONCRETE_DECK_VOL_TOTAL] = _fmt_small(concrete_vol)
+                    quantities[KEY_BOQ_CONCRETE_DECK_WT_SINGLE] = _fmt_small((concrete_vol * 2.5))
+                    quantities[KEY_BOQ_CONCRETE_DECK_WT_TOTAL] = _fmt_small((concrete_vol * 2.5))
 
                     # 2. Reinforcement Steel (Cu.m) and Weight (t)
                     rebar_wt_kg = concrete_vol * 120.0
                     rebar_vol = rebar_wt_kg / 7850.0
                     rebar_area = rebar_vol / span if span > 0 else 0.0
-                    quantities["rebar_deck_vol_formula"] = f"${_fmt_math(rebar_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(rebar_vol)}\\text{{ m}}^3$"
-                    quantities["rebar_deck_qty"] = "1"
-                    quantities["rebar_deck_vol_total"] = _fmt_small(rebar_vol)
+                    quantities[KEY_BOQ_REBAR_DECK_VOL_FORMULA] = f"${_fmt_math(rebar_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(rebar_vol)}\\text{{ m}}^3$"
+                    quantities[KEY_BOQ_REBAR_DECK_QTY] = "1"
+                    quantities[KEY_BOQ_REBAR_DECK_VOL_TOTAL] = _fmt_small(rebar_vol)
                     
                     rebar_wt_mt = rebar_wt_kg / 1000.0
-                    quantities["rebar_deck_wt_single"] = _fmt_small(rebar_wt_mt)
-                    quantities["rebar_deck_wt_total"] = _fmt_small(rebar_wt_mt)
+                    quantities[KEY_BOQ_REBAR_DECK_WT_SINGLE] = _fmt_small(rebar_wt_mt)
+                    quantities[KEY_BOQ_REBAR_DECK_WT_TOTAL] = _fmt_small(rebar_wt_mt)
             except Exception:
                 pass
 
@@ -412,19 +506,19 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
         girder_area = 0.0
         try:
             # Resolve representative girder sectional area
-            girder_area = float(resolve_girder_value(inputs, "member_properties.girder_details.section_properties.area", 0))
+            girder_area = float(resolve_girder_value(inputs, KEY_MP_GIRDER_SECTIONAL_AREA, 0))
         except Exception:
             pass
 
         # Calculate from inputs if not in properties
         if girder_area <= 0:
             try:
-                dw_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.web_depth", 0)
-                tw_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.web_thickness", 0)
-                bft_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.top_flange_width", 0)
-                tft_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.top_flange_thickness", 0)
-                bfb_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.bottom_flange_width", 0)
-                tfb_val = resolve_girder_value(inputs, "member_properties.girder_details.section_input.bottom_flange_thickness", 0)
+                dw_val = resolve_girder_value(inputs, KEY_MP_GIRDER_WEB_DEPTH, 0)
+                tw_val = resolve_girder_value(inputs, KEY_MP_GIRDER_WEB_THICKNESS, 0)
+                bft_val = resolve_girder_value(inputs, KEY_MP_GIRDER_TOP_FLANGE_WIDTH, 0)
+                tft_val = resolve_girder_value(inputs, KEY_MP_GIRDER_TOP_FLANGE_THICKNESS, 0)
+                bfb_val = resolve_girder_value(inputs, KEY_MP_GIRDER_BOTTOM_FLANGE_WIDTH, 0)
+                tfb_val = resolve_girder_value(inputs, KEY_MP_GIRDER_BOTTOM_FLANGE_THICKNESS, 0)
                 
                 if (dw_val is not None and tw_val is not None and 
                     bft_val is not None and tft_val is not None and 
@@ -445,24 +539,24 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
         total_girder_mass = 0.0
         if girder_area > 0:
             girder_vol = girder_area * span
-            quantities["steel_girders_vol_formula"] = f"${_fmt_math(girder_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(girder_vol)}\\text{{ m}}^3$"
-            quantities["steel_girders_qty"] = str(n_girders)
+            quantities[KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA] = f"${_fmt_math(girder_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(girder_vol)}\\text{{ m}}^3$"
+            quantities[KEY_BOQ_STEEL_GIRDERS_QTY] = str(n_girders)
             
             # calculate tonnage / volume
             for gi in range(n_girders):
                 try:
-                    mass_per_m = float(resolve_girder_value(inputs, "member_properties.girder_details.section_properties.mass", gi))
+                    mass_per_m = float(resolve_girder_value(inputs, KEY_MP_GIRDER_MASS, gi))
                     total_girder_mass += mass_per_m * span
                 except Exception:
                     total_girder_mass += girder_area * span * 7850.0
             
             girder_total_vol = n_girders * girder_vol
-            quantities["steel_girders_vol_total"] = _fmt_small(girder_total_vol)
+            quantities[KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL] = _fmt_small(girder_total_vol)
             
             single_girder_wt = (total_girder_mass / n_girders) / 1000.0
             total_girder_wt = total_girder_mass / 1000.0
-            quantities["steel_girders_wt_single"] = _fmt_small(single_girder_wt)
-            quantities["steel_girders_wt_total"] = _fmt_small(total_girder_wt)
+            quantities[KEY_BOQ_STEEL_GIRDERS_WT_SINGLE] = _fmt_small(single_girder_wt)
+            quantities[KEY_BOQ_STEEL_GIRDERS_WT_TOTAL] = _fmt_small(total_girder_wt)
 
             # Connections are an allowance on the girder steel they join.
             quantities.update(calculate_connection_quantities(girder_total_vol, total_girder_wt))
@@ -476,10 +570,10 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
         stud_d = 0.0
         stud_h_mm = 0.0
 
-        spacing_val = outputs.get("steeldesign.details.shear.longitudinal_spacing")
-        studs_val = outputs.get("steeldesign.details.shear.studs_per_section")
-        stud_d_val = outputs.get("steeldesign.details.shear.diameter") or inputs.get("design_options.shear_studs.diameter")
-        stud_h_val = outputs.get("steeldesign.details.shear.height") or inputs.get("design_options.shear_studs.height")
+        spacing_val = outputs.get(KEY_SD_SHEAR_LONGITUDINAL_SPACING)
+        studs_val = outputs.get(KEY_SD_SHEAR_STUDS_PER_SECTION)
+        stud_d_val = outputs.get(KEY_SD_SHEAR_DIAMETER) or inputs.get(KEY_DS_STUD_DIAMETER)
+        stud_h_val = outputs.get(KEY_SD_SHEAR_HEIGHT) or inputs.get(KEY_DS_STUD_HEIGHT)
 
         if spacing_val is not None and studs_val is not None and stud_d_val is not None and stud_h_val is not None:
             try:
@@ -497,23 +591,23 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
             
             stud_area = (3.14159 * (stud_d / 1000.0) ** 2) / 4.0
             stud_vol = stud_area * stud_h
-            quantities["shear_studs_vol_formula"] = f"${_fmt_math(stud_area)}\\text{{ m}}^2 \\times {_fmt_math(stud_h)}\\text{{ m}} = {_fmt_math(stud_vol)}\\text{{ m}}^3$"
-            quantities["shear_studs_qty"] = str(total_studs)
+            quantities[KEY_BOQ_SHEAR_STUDS_VOL_FORMULA] = f"${_fmt_math(stud_area)}\\text{{ m}}^2 \\times {_fmt_math(stud_h)}\\text{{ m}} = {_fmt_math(stud_vol)}\\text{{ m}}^3$"
+            quantities[KEY_BOQ_SHEAR_STUDS_QTY] = str(total_studs)
             
             studs_total_vol = total_studs * stud_vol
-            quantities["shear_studs_vol_total"] = _fmt_small(studs_total_vol)
+            quantities[KEY_BOQ_SHEAR_STUDS_VOL_TOTAL] = _fmt_small(studs_total_vol)
             
             # density of steel = 7850 kg/m^3 = 7.85 tonnes/m^3
             single_stud_wt = stud_vol * 7.85
             total_studs_wt = studs_total_vol * 7.85
-            quantities["shear_studs_wt_single"] = _fmt_small(single_stud_wt)
-            quantities["shear_studs_wt_total"] = _fmt_small(total_studs_wt)
+            quantities[KEY_BOQ_SHEAR_STUDS_WT_SINGLE] = _fmt_small(single_stud_wt)
+            quantities[KEY_BOQ_SHEAR_STUDS_WT_TOTAL] = _fmt_small(total_studs_wt)
         else:
-            quantities["shear_studs_vol_formula"] = "N.A."
-            quantities["shear_studs_qty"] = "N.A."
-            quantities["shear_studs_vol_total"] = "N.A."
-            quantities["shear_studs_wt_single"] = "N.A."
-            quantities["shear_studs_wt_total"] = "N.A."
+            quantities[KEY_BOQ_SHEAR_STUDS_VOL_FORMULA] = "N.A."
+            quantities[KEY_BOQ_SHEAR_STUDS_QTY] = "N.A."
+            quantities[KEY_BOQ_SHEAR_STUDS_VOL_TOTAL] = "N.A."
+            quantities[KEY_BOQ_SHEAR_STUDS_WT_SINGLE] = "N.A."
+            quantities[KEY_BOQ_SHEAR_STUDS_WT_TOTAL] = "N.A."
 
         # 5. Cross bracing: top chord, bottom chord and diagonals
         quantities.update(calculate_bracing_quantities(outputs))
@@ -555,22 +649,22 @@ def calculate_material_quantities(inputs: dict, outputs: dict) -> dict:
 
         if cb_area > 0.0:
             cb_vol = cb_area * span
-            quantities["crash_barrier_vol_formula"] = f"${_fmt_math(cb_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(cb_vol)}\\text{{ m}}^3$"
-            quantities["crash_barrier_qty"] = "2"
+            quantities[KEY_BOQ_CRASH_BARRIER_VOL_FORMULA] = f"${_fmt_math(cb_area)}\\text{{ m}}^2 \\times {_fmt_math(span)}\\text{{ m}} = {_fmt_math(cb_vol)}\\text{{ m}}^3$"
+            quantities[KEY_BOQ_CRASH_BARRIER_QTY] = "2"
 
             cb_total_vol = 2 * cb_vol
-            quantities["crash_barrier_vol_total"] = _fmt_small(cb_total_vol)
+            quantities[KEY_BOQ_CRASH_BARRIER_VOL_TOTAL] = _fmt_small(cb_total_vol)
 
             single_cb_wt = cb_vol * cb_density_t
             total_cb_wt = cb_total_vol * cb_density_t
-            quantities["crash_barrier_wt_single"] = _fmt_small(single_cb_wt)
-            quantities["crash_barrier_wt_total"] = _fmt_small(total_cb_wt)
+            quantities[KEY_BOQ_CRASH_BARRIER_WT_SINGLE] = _fmt_small(single_cb_wt)
+            quantities[KEY_BOQ_CRASH_BARRIER_WT_TOTAL] = _fmt_small(total_cb_wt)
         else:
-            quantities["crash_barrier_vol_formula"] = "N.A."
-            quantities["crash_barrier_qty"] = "N.A."
-            quantities["crash_barrier_vol_total"] = "N.A."
-            quantities["crash_barrier_wt_single"] = "N.A."
-            quantities["crash_barrier_wt_total"] = "N.A."
+            quantities[KEY_BOQ_CRASH_BARRIER_VOL_FORMULA] = "N.A."
+            quantities[KEY_BOQ_CRASH_BARRIER_QTY] = "N.A."
+            quantities[KEY_BOQ_CRASH_BARRIER_VOL_TOTAL] = "N.A."
+            quantities[KEY_BOQ_CRASH_BARRIER_WT_SINGLE] = "N.A."
+            quantities[KEY_BOQ_CRASH_BARRIER_WT_TOTAL] = "N.A."
 
     except Exception as exc:
         logger.warning(f"Error calculating material quantities: {exc}")

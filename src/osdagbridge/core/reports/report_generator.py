@@ -782,8 +782,6 @@ def build_report_payload(request, input_dict, output_dict):
 
 
 
-from osdagbridge.core.boq.boq_generator import calculate_material_quantities
-
 # ===========================================================================
 # Public entry point
 # ===========================================================================
@@ -884,9 +882,8 @@ def generate_report(payload, request):
                 shutil.copy2(org_logo_src, os.path.join(tmp_assets, 'org_logo.png'))
                 org_logo_latex = 'assets/org_logo.png'
 
-            # Compute and inject quantities for Chapter 7
-            quantities = calculate_material_quantities(payload.inputs, payload.output_dict)
-            payload.output_dict["chapter7_material_quantities"] = quantities
+            # Chapter 7 BOQ quantities are calculated by the bridge design flow.
+            quantities = payload.output_dict.get("boq.material_quantities", {})
             quantity_chart_paths = ReportChartGenerator(tmp_assets).generate_material_quantity_charts(quantities)
 
             # ── Assemble LaTeX document (fig_paths now has tmp_dir paths) ──

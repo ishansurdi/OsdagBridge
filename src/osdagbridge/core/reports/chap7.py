@@ -1,4 +1,62 @@
 from osdagbridge.core.reports.report_utils import _fig_embed, render_report_table
+from osdagbridge.core.utils.common import (
+    KEY_BOQ_BRACING_BOTTOM_QTY,
+    KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA,
+    KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL,
+    KEY_BOQ_BRACING_BOTTOM_WT_SINGLE,
+    KEY_BOQ_BRACING_BOTTOM_WT_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_QTY,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA,
+    KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL,
+    KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE,
+    KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL,
+    KEY_BOQ_BRACING_TOP_QTY,
+    KEY_BOQ_BRACING_TOP_VOL_FORMULA,
+    KEY_BOQ_BRACING_TOP_VOL_TOTAL,
+    KEY_BOQ_BRACING_TOP_WT_SINGLE,
+    KEY_BOQ_BRACING_TOP_WT_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_QTY,
+    KEY_BOQ_CONCRETE_DECK_VOL_FORMULA,
+    KEY_BOQ_CONCRETE_DECK_VOL_TOTAL,
+    KEY_BOQ_CONCRETE_DECK_WT_SINGLE,
+    KEY_BOQ_CONCRETE_DECK_WT_TOTAL,
+    KEY_BOQ_CONNECTIONS_QTY,
+    KEY_BOQ_CONNECTIONS_VOL_FORMULA,
+    KEY_BOQ_CONNECTIONS_VOL_TOTAL,
+    KEY_BOQ_CONNECTIONS_WT_SINGLE,
+    KEY_BOQ_CONNECTIONS_WT_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_QTY,
+    KEY_BOQ_CRASH_BARRIER_VOL_FORMULA,
+    KEY_BOQ_CRASH_BARRIER_VOL_TOTAL,
+    KEY_BOQ_CRASH_BARRIER_WT_SINGLE,
+    KEY_BOQ_CRASH_BARRIER_WT_TOTAL,
+    KEY_BOQ_MATERIAL_QUANTITIES,
+    KEY_BOQ_REBAR_DECK_QTY,
+    KEY_BOQ_REBAR_DECK_VOL_FORMULA,
+    KEY_BOQ_REBAR_DECK_VOL_TOTAL,
+    KEY_BOQ_REBAR_DECK_WT_SINGLE,
+    KEY_BOQ_REBAR_DECK_WT_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_QTY,
+    KEY_BOQ_SHEAR_STUDS_VOL_FORMULA,
+    KEY_BOQ_SHEAR_STUDS_VOL_TOTAL,
+    KEY_BOQ_SHEAR_STUDS_WT_SINGLE,
+    KEY_BOQ_SHEAR_STUDS_WT_TOTAL,
+    KEY_BOQ_STEEL_GIRDERS_QTY,
+    KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA,
+    KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL,
+    KEY_BOQ_STEEL_GIRDERS_WT_SINGLE,
+    KEY_BOQ_STEEL_GIRDERS_WT_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_QTY,
+    KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_BEARING_WT_SINGLE,
+    KEY_BOQ_STIFFENER_BEARING_WT_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_QTY,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE,
+    KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL,
+)
 
 
 def _wrap_multiply(value):
@@ -15,7 +73,7 @@ def ch7_quantities(input_dict, output_dict=None, chart_paths=None):
     if chart_paths is None and isinstance(output_dict, dict) and (
             "steel" in output_dict or "concrete_rebar" in output_dict):
         chart_paths, output_dict = output_dict, None
-    quantities = (output_dict or {}).get("chapter7_material_quantities", {})
+    quantities = (output_dict or {}).get(KEY_BOQ_MATERIAL_QUANTITIES, {})
     chart_paths = chart_paths or {}
     chart_figures = ""
     if chart_paths:
@@ -29,19 +87,24 @@ def ch7_quantities(input_dict, output_dict=None, chart_paths=None):
                          "Concrete Volume and Reinforcement Steel Summary",
                          width=r"0.82\textwidth", numbered=True)
         )
+
+    def val(key):
+        return str(quantities.get(key, "N.A."))
+
     rows = [
-        ["1", "Structural Steel (IS 2062) for Girders", _wrap_multiply(quantities.get("steel_girders_vol_formula", "N.A.")), quantities.get("steel_girders_qty", "N.A."), quantities.get("steel_girders_vol_total", "N.A."), quantities.get("steel_girders_wt_single", "N.A."), quantities.get("steel_girders_wt_total", "N.A.")],
-        ["2(a)", "Cross Bracing - Top Chord", _wrap_multiply(quantities.get("bracing_top_vol_formula", "N.A.")), quantities.get("bracing_top_qty", "N.A."), quantities.get("bracing_top_vol_total", "N.A."), quantities.get("bracing_top_wt_single", "N.A."), quantities.get("bracing_top_wt_total", "N.A.")],
-        ["2(b)", "Cross Bracing - Bottom Chord", _wrap_multiply(quantities.get("bracing_bot_vol_formula", "N.A.")), quantities.get("bracing_bot_qty", "N.A."), quantities.get("bracing_bot_vol_total", "N.A."), quantities.get("bracing_bot_wt_single", "N.A."), quantities.get("bracing_bot_wt_total", "N.A.")],
-        ["2(c)", "Cross Bracing - Diagonal Chord", _wrap_multiply(quantities.get("bracing_diag_vol_formula", "N.A.")), quantities.get("bracing_diag_qty", "N.A."), quantities.get("bracing_diag_vol_total", "N.A."), quantities.get("bracing_diag_wt_single", "N.A."), quantities.get("bracing_diag_wt_total", "N.A.")],
-        ["3(a)", "Stiffeners - Bearing", _wrap_multiply(quantities.get("stiffener_bearing_vol_formula", "N.A.")), quantities.get("stiffener_bearing_qty", "N.A."), quantities.get("stiffener_bearing_vol_total", "N.A."), quantities.get("stiffener_bearing_wt_single", "N.A."), quantities.get("stiffener_bearing_wt_total", "N.A.")],
-        ["3(b)", "Stiffeners - Intermediate", _wrap_multiply(quantities.get("stiffener_int_vol_formula", "N.A.")), quantities.get("stiffener_int_qty", "N.A."), quantities.get("stiffener_int_vol_total", "N.A."), quantities.get("stiffener_int_wt_single", "N.A."), quantities.get("stiffener_int_wt_total", "N.A.")],
-        ["4", "Connections", _wrap_multiply(quantities.get("connections_vol_formula", "N.A.")), quantities.get("connections_qty", "N.A."), quantities.get("connections_vol_total", "N.A."), quantities.get("connections_wt_single", "N.A."), quantities.get("connections_wt_total", "N.A.")],
-        ["5", "Concrete (M40) for Deck Slab", _wrap_multiply(quantities.get("concrete_deck_vol_formula", "N.A.")), quantities.get("concrete_deck_qty", "N.A."), quantities.get("concrete_deck_vol_total", "N.A."), quantities.get("concrete_deck_wt_single", "N.A."), quantities.get("concrete_deck_wt_total", "N.A.")],
-        ["6", "Reinforcement Steel (Fe 500)", _wrap_multiply(quantities.get("rebar_deck_vol_formula", "N.A.")), quantities.get("rebar_deck_qty", "N.A."), quantities.get("rebar_deck_vol_total", "N.A."), quantities.get("rebar_deck_wt_single", "N.A."), quantities.get("rebar_deck_wt_total", "N.A.")],
-        ["7", "Shear Stud Connectors", _wrap_multiply(quantities.get("shear_studs_vol_formula", "N.A.")), quantities.get("shear_studs_qty", "N.A."), quantities.get("shear_studs_vol_total", "N.A."), quantities.get("shear_studs_wt_single", "N.A."), quantities.get("shear_studs_wt_total", "N.A.")],
-        ["8", "Crash Barrier", _wrap_multiply(quantities.get("crash_barrier_vol_formula", "N.A.")), quantities.get("crash_barrier_qty", "N.A."), quantities.get("crash_barrier_vol_total", "N.A."), quantities.get("crash_barrier_wt_single", "N.A."), quantities.get("crash_barrier_wt_total", "N.A.")],
+        ["1", "Structural Steel (IS 2062) for Girders", _wrap_multiply(val(KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA)), val(KEY_BOQ_STEEL_GIRDERS_QTY), val(KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL), val(KEY_BOQ_STEEL_GIRDERS_WT_SINGLE), val(KEY_BOQ_STEEL_GIRDERS_WT_TOTAL)],
+        ["2(a)", "Cross Bracing - Top Chord", _wrap_multiply(val(KEY_BOQ_BRACING_TOP_VOL_FORMULA)), val(KEY_BOQ_BRACING_TOP_QTY), val(KEY_BOQ_BRACING_TOP_VOL_TOTAL), val(KEY_BOQ_BRACING_TOP_WT_SINGLE), val(KEY_BOQ_BRACING_TOP_WT_TOTAL)],
+        ["2(b)", "Cross Bracing - Bottom Chord", _wrap_multiply(val(KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA)), val(KEY_BOQ_BRACING_BOTTOM_QTY), val(KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL), val(KEY_BOQ_BRACING_BOTTOM_WT_SINGLE), val(KEY_BOQ_BRACING_BOTTOM_WT_TOTAL)],
+        ["2(c)", "Cross Bracing - Diagonal Chord", _wrap_multiply(val(KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA)), val(KEY_BOQ_BRACING_DIAGONAL_QTY), val(KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL), val(KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE), val(KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL)],
+        ["3(a)", "Stiffeners - Bearing", _wrap_multiply(val(KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA)), val(KEY_BOQ_STIFFENER_BEARING_QTY), val(KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL), val(KEY_BOQ_STIFFENER_BEARING_WT_SINGLE), val(KEY_BOQ_STIFFENER_BEARING_WT_TOTAL)],
+        ["3(b)", "Stiffeners - Intermediate", _wrap_multiply(val(KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA)), val(KEY_BOQ_STIFFENER_INTERMEDIATE_QTY), val(KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL), val(KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE), val(KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL)],
+        ["4", "Connections", _wrap_multiply(val(KEY_BOQ_CONNECTIONS_VOL_FORMULA)), val(KEY_BOQ_CONNECTIONS_QTY), val(KEY_BOQ_CONNECTIONS_VOL_TOTAL), val(KEY_BOQ_CONNECTIONS_WT_SINGLE), val(KEY_BOQ_CONNECTIONS_WT_TOTAL)],
+        ["5", "Concrete (M40) for Deck Slab", _wrap_multiply(val(KEY_BOQ_CONCRETE_DECK_VOL_FORMULA)), val(KEY_BOQ_CONCRETE_DECK_QTY), val(KEY_BOQ_CONCRETE_DECK_VOL_TOTAL), val(KEY_BOQ_CONCRETE_DECK_WT_SINGLE), val(KEY_BOQ_CONCRETE_DECK_WT_TOTAL)],
+        ["6", "Reinforcement Steel (Fe 500)", _wrap_multiply(val(KEY_BOQ_REBAR_DECK_VOL_FORMULA)), val(KEY_BOQ_REBAR_DECK_QTY), val(KEY_BOQ_REBAR_DECK_VOL_TOTAL), val(KEY_BOQ_REBAR_DECK_WT_SINGLE), val(KEY_BOQ_REBAR_DECK_WT_TOTAL)],
+        ["7", "Shear Stud Connectors", _wrap_multiply(val(KEY_BOQ_SHEAR_STUDS_VOL_FORMULA)), val(KEY_BOQ_SHEAR_STUDS_QTY), val(KEY_BOQ_SHEAR_STUDS_VOL_TOTAL), val(KEY_BOQ_SHEAR_STUDS_WT_SINGLE), val(KEY_BOQ_SHEAR_STUDS_WT_TOTAL)],
+        ["8", "Crash Barrier", _wrap_multiply(val(KEY_BOQ_CRASH_BARRIER_VOL_FORMULA)), val(KEY_BOQ_CRASH_BARRIER_QTY), val(KEY_BOQ_CRASH_BARRIER_VOL_TOTAL), val(KEY_BOQ_CRASH_BARRIER_WT_SINGLE), val(KEY_BOQ_CRASH_BARRIER_WT_TOTAL)],
     ]
+
     return r"""
 \chapter{Bill of Materials}
 \label{ch:material-takeoff}
@@ -54,5 +117,3 @@ def ch7_quantities(input_dict, output_dict=None, chart_paths=None):
         widths=[1.0, 3.8, 2.5, 2.1, 1.8, 1.7, 1.8],
         align=["C", "L", "C", "C", "C", "C", "C"],
         longtable=True, escape=False) + chart_figures
-
-
