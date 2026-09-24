@@ -1595,6 +1595,75 @@ from pathlib import Path
 import sqlite3
 _DB_PATH = Path(__file__).resolve().parents[1] / "data" / "ResourceFiles" / "Intg_osdag.sqlite"
 
+# BOQ output dictionary keys
+KEY_BOQ_MATERIAL_QUANTITIES = "boq.material_quantities"
+
+KEY_BOQ_STEEL_GIRDERS_VOL_FORMULA = "steel_girders_vol_formula"
+KEY_BOQ_STEEL_GIRDERS_QTY = "steel_girders_qty"
+KEY_BOQ_STEEL_GIRDERS_VOL_TOTAL = "steel_girders_vol_total"
+KEY_BOQ_STEEL_GIRDERS_WT_SINGLE = "steel_girders_wt_single"
+KEY_BOQ_STEEL_GIRDERS_WT_TOTAL = "steel_girders_wt_total"
+
+KEY_BOQ_BRACING_TOP_VOL_FORMULA = "bracing_top_vol_formula"
+KEY_BOQ_BRACING_TOP_QTY = "bracing_top_qty"
+KEY_BOQ_BRACING_TOP_VOL_TOTAL = "bracing_top_vol_total"
+KEY_BOQ_BRACING_TOP_WT_SINGLE = "bracing_top_wt_single"
+KEY_BOQ_BRACING_TOP_WT_TOTAL = "bracing_top_wt_total"
+
+KEY_BOQ_BRACING_BOTTOM_VOL_FORMULA = "bracing_bot_vol_formula"
+KEY_BOQ_BRACING_BOTTOM_QTY = "bracing_bot_qty"
+KEY_BOQ_BRACING_BOTTOM_VOL_TOTAL = "bracing_bot_vol_total"
+KEY_BOQ_BRACING_BOTTOM_WT_SINGLE = "bracing_bot_wt_single"
+KEY_BOQ_BRACING_BOTTOM_WT_TOTAL = "bracing_bot_wt_total"
+
+KEY_BOQ_BRACING_DIAGONAL_VOL_FORMULA = "bracing_diag_vol_formula"
+KEY_BOQ_BRACING_DIAGONAL_QTY = "bracing_diag_qty"
+KEY_BOQ_BRACING_DIAGONAL_VOL_TOTAL = "bracing_diag_vol_total"
+KEY_BOQ_BRACING_DIAGONAL_WT_SINGLE = "bracing_diag_wt_single"
+KEY_BOQ_BRACING_DIAGONAL_WT_TOTAL = "bracing_diag_wt_total"
+
+KEY_BOQ_STIFFENER_BEARING_VOL_FORMULA = "stiffener_bearing_vol_formula"
+KEY_BOQ_STIFFENER_BEARING_QTY = "stiffener_bearing_qty"
+KEY_BOQ_STIFFENER_BEARING_VOL_TOTAL = "stiffener_bearing_vol_total"
+KEY_BOQ_STIFFENER_BEARING_WT_SINGLE = "stiffener_bearing_wt_single"
+KEY_BOQ_STIFFENER_BEARING_WT_TOTAL = "stiffener_bearing_wt_total"
+
+KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_FORMULA = "stiffener_int_vol_formula"
+KEY_BOQ_STIFFENER_INTERMEDIATE_QTY = "stiffener_int_qty"
+KEY_BOQ_STIFFENER_INTERMEDIATE_VOL_TOTAL = "stiffener_int_vol_total"
+KEY_BOQ_STIFFENER_INTERMEDIATE_WT_SINGLE = "stiffener_int_wt_single"
+KEY_BOQ_STIFFENER_INTERMEDIATE_WT_TOTAL = "stiffener_int_wt_total"
+
+KEY_BOQ_CONNECTIONS_VOL_FORMULA = "connections_vol_formula"
+KEY_BOQ_CONNECTIONS_QTY = "connections_qty"
+KEY_BOQ_CONNECTIONS_VOL_TOTAL = "connections_vol_total"
+KEY_BOQ_CONNECTIONS_WT_SINGLE = "connections_wt_single"
+KEY_BOQ_CONNECTIONS_WT_TOTAL = "connections_wt_total"
+
+KEY_BOQ_CONCRETE_DECK_VOL_FORMULA = "concrete_deck_vol_formula"
+KEY_BOQ_CONCRETE_DECK_QTY = "concrete_deck_qty"
+KEY_BOQ_CONCRETE_DECK_VOL_TOTAL = "concrete_deck_vol_total"
+KEY_BOQ_CONCRETE_DECK_WT_SINGLE = "concrete_deck_wt_single"
+KEY_BOQ_CONCRETE_DECK_WT_TOTAL = "concrete_deck_wt_total"
+
+KEY_BOQ_REBAR_DECK_VOL_FORMULA = "rebar_deck_vol_formula"
+KEY_BOQ_REBAR_DECK_QTY = "rebar_deck_qty"
+KEY_BOQ_REBAR_DECK_VOL_TOTAL = "rebar_deck_vol_total"
+KEY_BOQ_REBAR_DECK_WT_SINGLE = "rebar_deck_wt_single"
+KEY_BOQ_REBAR_DECK_WT_TOTAL = "rebar_deck_wt_total"
+
+KEY_BOQ_SHEAR_STUDS_VOL_FORMULA = "shear_studs_vol_formula"
+KEY_BOQ_SHEAR_STUDS_QTY = "shear_studs_qty"
+KEY_BOQ_SHEAR_STUDS_VOL_TOTAL = "shear_studs_vol_total"
+KEY_BOQ_SHEAR_STUDS_WT_SINGLE = "shear_studs_wt_single"
+KEY_BOQ_SHEAR_STUDS_WT_TOTAL = "shear_studs_wt_total"
+
+KEY_BOQ_CRASH_BARRIER_VOL_FORMULA = "crash_barrier_vol_formula"
+KEY_BOQ_CRASH_BARRIER_QTY = "crash_barrier_qty"
+KEY_BOQ_CRASH_BARRIER_VOL_TOTAL = "crash_barrier_vol_total"
+KEY_BOQ_CRASH_BARRIER_WT_SINGLE = "crash_barrier_wt_single"
+KEY_BOQ_CRASH_BARRIER_WT_TOTAL = "crash_barrier_wt_total"
+
 def connectdb(table_name: str) -> list[str]:
     """
     Fetches all grade designations from the Grade column of the given table.

@@ -37,6 +37,7 @@ from .plot_generator import (
 )
 from osdagbridge.core.utils.codes.irc6_2017 import IRC6_2017
 from osdagbridge.core.utils.common import (
+    KEY_BOQ_MATERIAL_QUANTITIES,
     KEY_STRUCTURE_TYPE,
     KEY_PROJECT_LOCATION,
     KEY_SPAN,
@@ -264,6 +265,7 @@ from osdagbridge.core.bridge_components.super_structure.shear_studs.geometry imp
     min_stud_head_height,
 )
 from osdagbridge.core.utils.logger import bridge_logger
+from osdagbridge.core.boq.boq_generator import calculate_material_quantities
 from osdagbridge.core.bridge_types.plate_girder.designer import (BridgeConfig, IRC22CapacityCalculator, DCREngine, DemandEnvelope, design_envelope_engine,)
 
 _DB_PATH = Path(__file__).resolve().parents[2] / "data" / "ResourceFiles" / "Intg_osdag.sqlite"
@@ -847,6 +849,11 @@ class PlateGirderBridge:
                     self.output_dict[f"{KEY_SD_DEFL_LIVE}.{_gi}"] = round(float(_live), 3)
                 if _total is not None:
                     self.output_dict[f"{KEY_SD_DEFL_TOTAL}.{_gi}"] = round(float(_total), 3)
+
+            # BOQ take-off values are stored in output_dict for report generation.
+            self.output_dict[KEY_BOQ_MATERIAL_QUANTITIES] = calculate_material_quantities(
+                self.input_dict, self.output_dict
+            )
             
             # Stage 8: 3D CAD & Drawing Generation
             self._run_stage("8", self._stage_cad_generation)
