@@ -214,6 +214,11 @@ from osdagbridge.core.utils.common import (
     # Deflection check keys (Table 5.10)
     KEY_SD_DEFL_LIVE,
     KEY_SD_DEFL_TOTAL,
+    KEY_SD_DEFL_AFTER_CAMBER,
+    KEY_SD_APPLIED_CAMBER,
+    KEY_SD_DEFL_LIVE_RAW,
+    KEY_SD_DEFL_TOTAL_RAW,
+    KEY_SD_DEFL_DL_RAW,
     KEY_SD_DEFL_ALLOW_LIVE,
     KEY_SD_DEFL_ALLOW_TOTAL,
     # Stiffener table
@@ -355,6 +360,8 @@ class PlateGirderBridge:
     })
 
     def __init__(self) -> None:
+        # To keep track of Design Status
+        self.design_completed = False
         self.input_dict: dict = {}
         self.basic_inputs: dict = {}
         self.additional_inputs: dict = {}
@@ -367,6 +374,7 @@ class PlateGirderBridge:
         self.grillage_geometry: GrillageGeometry | None = None
         self.deck_layout: DeckLayoutProperties | None = None
         self.result_data: dict = {}         # flat restructured dataset, set after analysis
+        self._deflections_cache: dict = {}
 
         # Analyser — populated by setup_grillage()
         self.grillage_model: BridgeGrillageModel = BridgeGrillageModel()
@@ -376,6 +384,12 @@ class PlateGirderBridge:
 
         # When True, design() writes tools/bridge_full_data.json. Off by default.
         self.dump_json: bool = False
+
+    @staticmethod
+    def module_name() -> str:
+        """Return the module name for this bridge type."""
+        from osdagbridge.core.utils.common import KEY_MODULE_PLATE_GIRDER
+        return KEY_MODULE_PLATE_GIRDER
 
     def input_values(self) -> list:
         """Return UI field definitions for the InputDock (delegated to FrontendData)."""
@@ -784,7 +798,7 @@ class PlateGirderBridge:
             self.result_data = self.grillage_model.get_result_data()
 
             # Stage 5: Girder Design Checks
-            self._run_stage("5", self._run_dcr_checks, dataset)
+            self._run_stage("5", self._run_dcr_checks)
 
             if self.dump_json:
                 from osdagbridge.core.bridge_types.plate_girder.results_data import dump_full_data
@@ -808,10 +822,24 @@ class PlateGirderBridge:
             for _gi, _vals in (self._deflections_cache or {}).items():
                 _live = _vals.get("live_mm")
                 _total = _vals.get("total_mm")
+                _dl = _vals.get("dl_mm")
+                _camber = _vals.get("camber_mm")
                 if _live is not None:
                     self.output_dict[f"{KEY_SD_DEFL_LIVE}.{_gi}"] = round(float(_live), 3)
                 if _total is not None:
                     self.output_dict[f"{KEY_SD_DEFL_TOTAL}.{_gi}"] = round(float(_total), 3)
+                if _dl is not None:
+                    self.output_dict[f"{KEY_SD_DEFL_AFTER_CAMBER}.{_gi}"] = round(float(_dl), 3)
+                if _camber is not None:
+                    self.output_dict[f"{KEY_SD_APPLIED_CAMBER}.{_gi}"] = round(float(_camber), 3)
+                # Pre-camber originals — what the analysis produced. Report Chapter 4 reads
+                # these so its table agrees with the deflection plots.
+                for _key in (KEY_SD_DEFL_LIVE_RAW,
+                             KEY_SD_DEFL_TOTAL_RAW,
+                             KEY_SD_DEFL_DL_RAW):
+                    _v = _vals.get(_key)
+                    if _v is not None:
+                        self.output_dict[f"{_key}.{_gi}"] = round(float(_v), 3)
             
             # Stage 8: 3D CAD & Drawing Generation
             self._run_stage("8", self._stage_cad_generation)
@@ -2425,12 +2453,13 @@ class PlateGirderBridge:
     # DCR checks
     # ─────────────────────────────────────────────────────────────────────────
 
-    def _run_dcr_checks(self, dataset) -> None:
+    def _run_dcr_checks(self) -> None:
         """Run structural capacity checks and push DCR percentages to the output dock."""
-        results = PlateGirderAnalysisResults(dataset=dataset, bridge=self.grillage_model)
+        # Forces, displacements, load-case names and girders all come from
+        # self.result_data (built just before stage 5), so no result handler is
+        # needed here — run_design_check reads that dict directly.
         _, engine, design_results = run_design_check(
             plate_girder_bridge=self,
-            analysis_results=results,
             print_report=True,
         )
         self._dcr_engine = engine
@@ -2598,12 +2627,11 @@ class PlateGirderBridge:
         overhang exists — allowing build_load_effects_cache() to skip them.
         """
         from osdagbridge.core.bridge_types.plate_girder.results_data import (
-            build_load_effects_cache, build_deflections_cache, build_forces_summary,
+            build_load_effects_cache, build_forces_summary,
         )
         results = self.get_results_dataset()
         if results is None:
             self._load_effects_cache        = {}
-            self._deflections_cache         = {}
             self._lc_summary       = {}
             self._reaction_summary= {}
             return
@@ -2614,7 +2642,6 @@ class PlateGirderBridge:
             edge_dist=edge_dist,
         )
         self._load_effects_cache = build_load_effects_cache(rh)
-        self._deflections_cache  = build_deflections_cache(rh)
         ch4 = build_forces_summary(rh, self._load_effects_cache)
         self._lc_summary       = ch4["load_cases"]
         self._reaction_summary= ch4["reactions"]
@@ -3163,6 +3190,8 @@ class PlateGirderBridge:
                 V_sls_kN             = lc_demand.get("V_sls_kN",            0.0),
                 delta_live_mm        = lc_demand.get("delta_live_mm",       0.0),
                 delta_total_mm       = lc_demand.get("delta_total_mm",      0.0),
+                delta_dl_mm          = lc_demand.get("delta_dl_mm",         0.0),
+                camber_mm            = lc_demand.get("camber_mm",           0.0),
                 stress_range_MPa     = lc_demand.get("stress_range_MPa",    0.0),
                 shear_range_MPa      = lc_demand.get("shear_range_MPa",     0.0),
                 Mx_kNm               = lc_demand.get("Mx_kNm",              0.0),
@@ -3232,7 +3261,7 @@ class PlateGirderBridge:
             KEY_UTIL_LONG_TRANS_SHEAR:  _max_ids(6, 7, 16, 17),
             KEY_UTIL_FATIGUE:           _max_ids(8, 9),
             KEY_UTIL_STRESS_LIMITATION: _max_ids(10, 11, 12),
-            KEY_UTIL_DEFLECTION_CRACK:  _max_ids(13, 14, 15),
+            KEY_UTIL_DEFLECTION_CRACK:  _max_ids(13, 14, 15, 18),
         }
 
     def get_nodes_members(self) -> tuple[dict, dict]:
