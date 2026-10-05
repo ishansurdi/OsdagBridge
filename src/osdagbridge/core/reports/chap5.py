@@ -674,8 +674,9 @@ def ch5_design_checks(checks_data, bridge, chart_paths=None) -> str:
         [r"Design Resistance, $Q_u$",
          r"\footnotesize\makecell{$Q_u=\min(Q_{u,s},\,Q_{u,c})$\\[3pt]$Q_{u,s}=\dfrac{0.8\,f_u\,(\pi d^2/4)}{\gamma_v}$\\[3pt]$Q_{u,c}=\dfrac{0.29\,\alpha\,d^2\sqrt{f_{ck}\,E_{cm}}}{\gamma_v}$}",
          _kn(_dr_sc.get(KEY_SD_SC_Qu_kN)), "IRC 22 Cl. 606.3.1 (Eq. 6.1)"],
-        [r"Fatigue Shear Resistance, $Q_r$", r"IRC 22 Table 8 ($\phi d$, $N_{sc}$)",
-         _kn(_dr_sc.get(KEY_SD_SC_Qr_kN)), "IRC 22 Cl. 606.3.2 (Table 8)"],
+        [r"Fatigue Shear Resistance, $Q_r$",
+         r"\footnotesize\makecell{$Q_r=\tau_f\,(\pi d^2/4)$\\[3pt]$\tau_f=\tau_{fn}\left(5\times10^6/N_{sc}\right)^{1/5}$}",
+         _kn(_dr_sc.get(KEY_SD_SC_Qr_kN)), "IRC 22 Cl. 606.3.2"],
     ]
 
     # ── Table 5.15: Shear Connector Spacing (bridge-level) ───────────────────
@@ -1423,11 +1424,10 @@ The reinforced concrete deck slab is designed per IRC~112:2011 (flexure, shear, 
 \cline{2-5}
  & Required Top Steel, $A_{st,top}$ & $M_u / (0.87\,f_y\,d)$ & """ + _dkf(KEY_DD_AS_REQ_TOP, nd=0) + r""" mm²/m & --- \\[6pt]
 \cline{2-5}
- & Moment Capacity, $M_{Rd}$ & IRC 112 Cl. 8.2.1 & """ + _dkf(KEY_DD_MU_TOP, nd=2) + r""" kN-m/m & """ + _dks(_dkv(KEY_DD_MU_TOP) >= _dkv(KEY_DD_M_ULS_HOG)) + r""" \\[6pt]
+  & Moment Capacity, $M_{Rd}$ & IRC 112 Cl. 8.2.1 & """ + _dkf(KEY_DD_MU_TOP, nd=2) + r""" kN-m/m & """ + _dks(_dkv(KEY_DD_MU_TOP) >= _dkv(KEY_DD_M_ULS_HOG)) + r""" \\[6pt]
 \hline
 """) + r"""
 \noindent\textit{Note: IRC 112 Cl. 8.2.1. Distribution (longitudinal) reinforcement designed for 20\% of main steel moment (IRC 112 Cl. 16.6.1.1).}
-
 \vspace{1em}
 """ + render_report_table(
     "Deck Slab --- Cantilever Overhang Flexure Check", [],
@@ -1437,7 +1437,7 @@ The reinforced concrete deck slab is designed per IRC~112:2011 (flexure, shear, 
     body_latex=r"""
 Overhang Length, $l_{oh}$ & --- & """ + _render_value(bridge.input_dict, KEY_TS_DECK_OVERHANG, " m") + r""" & --- \\[6pt]
 \hline
-Crash Barrier Load Moment & IRC 6 Cl. 206.6 &""" + _dkoh(KEY_DD_M_BARRIER, nd=2, unit=" kN-m/m") + r""" & --- \\[6pt]
+Crash Barrier Load Moment & IRC 6 Cl. 206.6 & """ + _dkoh(KEY_DD_M_BARRIER, nd=2, unit=" kN-m/m") + r""" & --- \\[6pt]
 \hline
 Dead Load Moment & $w_{DL}\,l_{oh}^2/2$ + railing & """ + _dkoh(KEY_DD_M_DL_OH, nd=2, unit=" kN-m/m") + r""" & --- \\[6pt]
 \hline
